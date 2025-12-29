@@ -1,0 +1,28 @@
+name: Issue Auto Response
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  comment:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Add comment based on label
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const labels = issue.labels.map(l => l.name);
+            let comment = "Hello, world!";
+            if (labels.includes('bug')) {
+              comment = "Thank you. We will fix it.";
+            } else if (labels.includes('feature')) {
+              comment = "Thank you, we will consider to include this feature.";
+            }
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue.number,
+              body: comment
+            });
